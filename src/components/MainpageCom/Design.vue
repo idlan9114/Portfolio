@@ -42,7 +42,7 @@ async function loadDesignImages() {
   try {
     // Dynamically import all images from AdobeGallery folder
     const imageModules = import.meta.glob<{ default: string }>(
-      '/src/assets/Images/AdobeGallery/**/*.(png|jpg|jpeg|gif|webp)',
+      '@/assets/Images/AdobeGallery/**/*.(png|jpg|jpeg|gif|webp)',
       { eager: true }
     )
     
