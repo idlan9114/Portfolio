@@ -142,8 +142,7 @@ span{ color: #1db9be; }
 
 .typing-text span{ position: relative; }
 .typing-text span::after{
-    content: ""; background-color: black; position: absolute; width: calc(100% + 8px); height: 100%;
-    border-left: 3px solid #1db9be; right: -8; animation: cursor 0.6s infinite;
+    content: ""; border-left: 3px solid #1db9be; animation: cursor 0.6s infinite;
 }
 @keyframes cursor{ to{ border-left: 3px solid #1db9be; } }
 
