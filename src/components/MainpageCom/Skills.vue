@@ -14,7 +14,7 @@
                         <span>JavaScript</span>
                         <span>PHP</span>
                         <span>Java</span>
-                        <span>React.js</span>
+                        <span>Vue.js</span>
                         <span>Tailwind CSS</span>
                     </div>
                 </div>
@@ -36,6 +36,7 @@
                         <span>Illustration</span>
                         <span>Adobe Photoshop</span>
                         <span>Adobe Illustrator</span>
+                         <span>Procreate</span>
                     </div>
                 </div>
 
