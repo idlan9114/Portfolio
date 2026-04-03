@@ -333,20 +333,24 @@ html, body, a, button {
     font-size: 4rem;
 }
 
-/* 3. Slider Wrapper - FULL WIDTH UPDATE */
+/* --- CSS UPDATES --- */
+
 .slider-wrapper {
     position: relative;
     width: 100%;
-    padding: 0 60px;    /* ← give space for buttons */
-    overflow: visible;  /* ← let buttons show outside */
+    padding: 0 6px;
+    overflow: hidden; /* Changed from visible to hidden to prevent side-peeking cards from overlapping other sections */
     box-sizing: border-box;
 }
 
-/* 4. Sliding Track */
 .project-slider {
     display: flex;
-    gap: 20px; 
-    transition: transform;
+    gap: 10px; 
+    transition: transform 0.5s ease-in-out;
+    will-change: transform;
+    justify-content: center;
+    margin-bottom: 4rem;
+    
 }
 
 /* 5. Project Cards */

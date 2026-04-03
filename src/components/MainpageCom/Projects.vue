@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import Hammer from 'hammerjs' // <-- Install this: npm install hammerjs
 
 import PejuangSlime from '@/assets/Images/PejuangSlime.png'
 import Farming      from '@/assets/Images/Farming.png'
@@ -46,6 +47,7 @@ const projects: Project[] = [
 const sliderEl  = ref<HTMLElement | null>(null)
 const wrapperEl = ref<HTMLElement | null>(null)
 let isTransitioning = false
+let hammerManager: HammerManager | null = null
 
 function getCardStep(): number {
   const card = sliderEl.value?.querySelector<HTMLElement>('.project-box')
@@ -58,8 +60,13 @@ function getCenterPosition(): number {
   const cardWidth    = card.offsetWidth
   const gap          = 20
   const wrapperWidth = wrapperEl.value.offsetWidth
+  
+  // Adjusted visibleCards for mobile centering (80% width)
   const visibleCards = window.innerWidth <= 768 ? 1 : 3
+  
   const totalWidth   = cardWidth * visibleCards + gap * (visibleCards - 1)
+  
+  // Corrected offset for the cloned card prepended during initialization
   return -(cardWidth + gap) + (wrapperWidth - totalWidth) / 2
 }
 
@@ -73,12 +80,31 @@ function initSlider(): void {
   if (!sliderEl.value?.lastElementChild) return
   sliderEl.value.prepend(sliderEl.value.lastElementChild)
   alignSlider()
+  
+  // Set up Hammer.js for swiping
+  if (sliderEl.value && window.innerWidth <= 768) {
+      hammerManager = new Hammer(sliderEl.value);
+      // Ensure horizontal panning is prioritized
+      hammerManager.get('pan').set({ direction: Hammer.DIRECTION_HORIZONTAL });
+      
+      hammerManager.on('panend', (ev) => {
+          if (ev.direction === Hammer.DIRECTION_LEFT) {
+              nextSlide();
+          } else if (ev.direction === Hammer.DIRECTION_RIGHT) {
+              prevSlide();
+          }
+      });
+  }
 }
 
 function nextSlide(): void {
   if (isTransitioning || !sliderEl.value) return
   isTransitioning = true
-  const matrix = new DOMMatrixReadOnly(window.getComputedStyle(sliderEl.value).transform)
+  
+  // Get current X position safely
+  const transform = window.getComputedStyle(sliderEl.value).transform;
+  const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : { m41: 0 };
+  
   sliderEl.value.style.transition = 'transform 0.5s ease'
   sliderEl.value.style.transform  = `translateX(${matrix.m41 - getCardStep()}px)`
   setTimeout(() => {
@@ -91,7 +117,11 @@ function nextSlide(): void {
 function prevSlide(): void {
   if (isTransitioning || !sliderEl.value) return
   isTransitioning = true
-  const matrix = new DOMMatrixReadOnly(window.getComputedStyle(sliderEl.value).transform)
+  
+  // Get current X position safely
+  const transform = window.getComputedStyle(sliderEl.value).transform;
+  const matrix = transform && transform !== 'none' ? new DOMMatrixReadOnly(transform) : { m41: 0 };
+  
   sliderEl.value.style.transition = 'transform 0.5s ease'
   sliderEl.value.style.transform  = `translateX(${matrix.m41 + getCardStep()}px)`
   setTimeout(() => {
@@ -107,6 +137,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  if (hammerManager) {
+      hammerManager.destroy();
+  }
   window.removeEventListener('resize', alignSlider)
 })
 </script>
