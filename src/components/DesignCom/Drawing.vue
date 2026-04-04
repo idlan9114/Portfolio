@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Navbar from '@/components/Navbar.vue'
+import ImageLightbox from './ImageLightbox.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
