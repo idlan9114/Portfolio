@@ -13,6 +13,16 @@ const router = useRouter()
 const images = ref<DesignItem[]>([])
 const loading = ref(true)
 
+const lightboxVisible = ref(false)
+const lightboxSrc = ref('')
+const lightboxName = ref('')
+
+function openLightbox(img: DesignItem) {
+  lightboxSrc.value = img.url
+  lightboxName.value = img.name
+  lightboxVisible.value = true
+}
+
 function formatFileName(fileName: string): string {
   const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '')
   return nameWithoutExt
@@ -48,7 +58,6 @@ onMounted(() => loadGallery())
   <Navbar />
   <main class="gallery-main min-h-screen bg-black text-white">
 
-    <!-- Back -->
     <button class="back-btn" @click="router.push('/Design')">
       <svg viewBox="0 0 24 24" fill="none" width="18" height="18">
         <path d="M19 12H5M5 12L11 18M5 12L11 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -56,7 +65,6 @@ onMounted(() => loadGallery())
       Back
     </button>
 
-    <!-- Header -->
     <div class="page-header text-center px-6">
       <h1 class="page-title">
         Photoshop <span class="amp">&</span><br/>
@@ -64,23 +72,21 @@ onMounted(() => loadGallery())
       </h1>
     </div>
 
-    <!-- Loading -->
     <div v-if="loading" class="state-msg">
       <div class="spinner" />
       <p>Loading gallery…</p>
     </div>
 
-    <!-- Empty -->
     <div v-else-if="images.length === 0" class="state-msg">
       <p>No designs to display yet.</p>
     </div>
 
-    <!-- Grid -->
     <div v-else class="gallery-grid">
       <div
         v-for="img in images"
         :key="img.id"
-        class="gallery-item group"
+        class="gallery-item"
+        @click="openLightbox(img)"
       >
         <img :src="img.url" :alt="img.name" class="gallery-img" loading="lazy" />
         <div class="gallery-caption">{{ img.name }}</div>
@@ -88,6 +94,14 @@ onMounted(() => loadGallery())
     </div>
 
   </main>
+
+  <ImageLightbox
+    :src="lightboxSrc"
+    :name="lightboxName"
+    accent="#1db9be"
+    :visible="lightboxVisible"
+    @close="lightboxVisible = false"
+  />
 </template>
 
 <style scoped>
@@ -98,8 +112,6 @@ onMounted(() => loadGallery())
   padding-bottom: 6rem;
   font-family: 'DM Sans', sans-serif;
 }
-
-/* Back button */
 .back-btn {
   display: inline-flex;
   align-items: center;
@@ -117,17 +129,7 @@ onMounted(() => loadGallery())
   margin-bottom: 3rem;
 }
 .back-btn:hover { color: #1db9be; }
-
-/* Header */
 .page-header { margin-bottom: 4rem; animation: fadeUp 0.6s ease both; }
-.overline-label {
-  font-size: 0.65rem;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
-  color: #1db9be;
-  opacity: 0.7;
-  margin-bottom: 0.75rem;
-}
 .page-title {
   font-family: 'Syne', sans-serif;
   font-size: clamp(2.5rem, 7vw, 6rem);
@@ -138,9 +140,6 @@ onMounted(() => loadGallery())
 }
 .highlight { color: #1db9be; }
 .amp { color: rgba(255,255,255,0.25); font-weight: 700; }
-.page-sub { color: #666; font-size: 0.9rem; }
-
-/* State */
 .state-msg {
   display: flex;
   flex-direction: column;
@@ -148,7 +147,6 @@ onMounted(() => loadGallery())
   gap: 1rem;
   color: #555;
   padding: 5rem 1rem;
-  font-size: 1rem;
 }
 .spinner {
   width: 36px; height: 36px;
@@ -157,8 +155,6 @@ onMounted(() => loadGallery())
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
-
-/* Gallery */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -168,7 +164,6 @@ onMounted(() => loadGallery())
   margin: 0 auto;
   animation: fadeUp 0.7s ease 0.2s both;
 }
-
 .gallery-item {
   position: relative;
   border-radius: 0.875rem;
@@ -177,11 +172,7 @@ onMounted(() => loadGallery())
   cursor: pointer;
   transition: border-color 0.3s, transform 0.3s;
 }
-.gallery-item:hover {
-  border-color: #1db9be;
-  transform: scale(1.015);
-}
-
+.gallery-item:hover { border-color: #1db9be; transform: scale(1.015); }
 .gallery-img {
   width: 100%;
   height: 100%;
@@ -190,7 +181,6 @@ onMounted(() => loadGallery())
   transition: transform 0.4s ease;
 }
 .gallery-item:hover .gallery-img { transform: scale(1.04); }
-
 .gallery-caption {
   position: absolute;
   bottom: 0;
@@ -209,12 +199,21 @@ onMounted(() => loadGallery())
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 640px) {
-  .gallery-grid { grid-template-columns: 1fr; padding: 0 1.25rem 3rem; }
-  .back-btn { margin-left: 1.25rem; }
+  .gallery-main { padding-top: 7rem; }
+  .back-btn { margin-left: 1rem; margin-bottom: 1.5rem; }
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.625rem;
+    padding: 0 0.75rem 3rem;
+  }
+  .gallery-item { border-radius: 0.625rem; }
+  .gallery-caption {
+    transform: translateY(0);
+    font-size: 0.65rem;
+    padding: 0.4rem 0.4rem;
+  }
 }
 </style>
